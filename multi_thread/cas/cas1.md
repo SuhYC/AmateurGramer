@@ -38,7 +38,7 @@
 
 ## func1()을 수행한 결과
 
-![func2](https://github.com/SuhYC/AmateurGramer/blob/main/multi_thread/cas/cas_func2.png?raw=true)
+![func2](https://github.com/SuhYC/AmateurGramer/blob/main/multi_thread/cas/cas_func1.png?raw=true)
 
 CAS연산으로 데이터를 변경했을 경우의 결과이다.
 
