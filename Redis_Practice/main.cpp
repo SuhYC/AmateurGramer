@@ -66,23 +66,42 @@ void func(int key_, int value_)
     return;
 }
 
+void nolock(int key_, int value_)
+{
+    redisContext* conn = redisConnect("127.0.0.1", 6379);
+
+    redisReply* reply = reinterpret_cast<redisReply*>(redisCommand(conn, "SETEX %d 60 %d", key_, value_));
+
+    freeReplyObject(reply);
+
+    for (int i = 0; i < 1000; i++)
+    {
+        reply = reinterpret_cast<redisReply*>(redisCommand(conn, "GET %d", key_));
+        freeReplyObject(reply);
+    }
+
+    redisFree(conn);
+
+    return;
+}
+
 int main()
 {
-    m = new std::mutex[CONTEXT_COUNT];
+    //m = new std::mutex[CONTEXT_COUNT];
 
     std::vector<std::thread> threads;
 
-    rc.resize(CONTEXT_COUNT);
-    for (int i = 0; i < CONTEXT_COUNT; i++)
-    {
-        rc[i] = redisConnect("127.0.0.1", 6379);
-    }
+    //rc.resize(CONTEXT_COUNT);
+    //for (int i = 0; i < CONTEXT_COUNT; i++)
+    //{
+    //    rc[i] = redisConnect("127.0.0.1", 6379);
+    //}
 
     clock_t st = clock();
 
     for (int i = 0; i < THREAD_COUNT; i++)
     {
-        threads.emplace_back([i]() { func(i, i); });
+        threads.emplace_back([i]() { nolock(i, i); });
     }
 
     for (int i = 0; i < THREAD_COUNT; i++)
@@ -97,15 +116,15 @@ int main()
 
     std::cout << end - st << "\n";
 
-    delete[] m;
+    //delete[] m;
 
-    for (int i = 0; i < CONTEXT_COUNT; i++)
-    {
-        if (rc[i])
-        {
-            redisFree(rc[i]);
-        }
-    }
+    //for (int i = 0; i < CONTEXT_COUNT; i++)
+    //{
+    //    if (rc[i])
+     //   {
+      //      redisFree(rc[i]);
+       // }
+    //}
 
     return 0;
 }
